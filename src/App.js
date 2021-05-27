@@ -3,6 +3,7 @@ import './App.css';
 import sanityClient from './client';
 import client from './shopify';
 import Cart from './components/Cart';
+import { Base64 } from 'base64-string';
 
 function App() {
   const [products, setProducts] = useState(null);
@@ -18,6 +19,9 @@ function App() {
     client.checkout.create().then(res => setCheckout(res)).catch(err => console.log(err));
 
     client.product.fetchAll().then(products => {
+      const enc = new Base64()
+      const productID = enc.decode(products[0].id).split('gid://shopify/Product/')[1]
+      console.log(productID)
       console.log(products)
       setSelectedProduct(products[0])
     }).catch(err => console.log(err));
