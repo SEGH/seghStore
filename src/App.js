@@ -45,28 +45,28 @@ function App() {
 
   const updateQuantityInCart = (lineItemId, quantity) => {
     const checkoutId = checkout.id;
-    const lineItemsToUpdate = [{ id: lineItemId, quantity: parseInt(quantity, 10)}]
+    const lineItemsToUpdate = [{ id: lineItemId, quantity: parseInt(quantity, 10) }]
 
     return client.checkout.updateLineItems(checkoutId, lineItemsToUpdate).then(res => setCheckout(res));
   }
 
   const removeLineItemInCart = lineItemId => {
     const checkoutId = checkout.id;
-    
+
     return client.checkout.removeLineItems(checkoutId, [lineItemId]).then(res => setCheckout(res));
   }
 
   const addVariantToCart = (id, quantity) => {
     setIsCartOpen(true);
 
-    const lineItemsToAdd = [{variantId: id, quantity: parseInt(quantity, 10)}]
+    const lineItemsToAdd = [{ variantId: id, quantity: parseInt(quantity, 10) }]
     const checkoutId = checkout.id
 
     return client.checkout.addLineItems(checkoutId, lineItemsToAdd).then(res => setCheckout(res)).catch(err => console.log(err));
   }
 
   const selectVariant = (product) => {
-    const selectedVariant = client.product.helpers.variantForOptions(product, {[product.options[0].name]: product.options[0].values[0]});
+    const selectedVariant = client.product.helpers.variantForOptions(product, { [product.options[0].name]: product.options[0].values[0] });
     console.log(selectedVariant)
     return selectedVariant.id
   }
@@ -76,7 +76,20 @@ function App() {
 
   return (
     <div className="App">
-      {products && products.map(product => <p key={product.id} onClick={() => addVariantToCart(product.variants[0].id, 1)}>{product.title}</p>)}
+      {products && products.map(product => (
+        <div>
+          <p key={product.id} onClick={() => addVariantToCart(product.variants[0].id, 1)}>{product.title}</p>
+          {product.options?.length > 0 && product.options.map(option => (
+            <div>
+              <label htmlFor={option.name}>{option.name}</label>
+              <select name={option.name} onChange={event => console.log(product, event.target.value)}>
+                {option.values.map(variant => <option value={variant}>{variant}</option>)}
+              </select>
+            </div>
+          ))}
+
+        </div>
+      ))}
       <Cart checkout={checkout} isCartOpen={isCartOpen} handleCartClose={handleCartClose} updateQuantityInCart={updateQuantityInCart} removeLineItemInCart={removeLineItemInCart} />
     </div>
   );
